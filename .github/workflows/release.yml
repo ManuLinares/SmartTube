@@ -1,0 +1,33 @@
+name: Release Build
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build-release:
+    runs-on: ubuntu-24.04
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+          cache: 'gradle'
+
+      - run: |
+          chmod +x gradlew
+          ./gradlew clean \
+            smarttubetv:assembleStstableRelease
+
+      - name: Upload APKs to Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            smarttubetv/build/outputs/apk/ststable/release/*arm64*.apk
+            smarttubetv/build/outputs/apk/ststable/release/*armeabi*.apk
+            smarttubetv/build/outputs/apk/ststable/release/*x86*.apk
